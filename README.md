@@ -18,4 +18,6 @@ To make it work you need to follow this simple steps:
     ```
     30 8 * * * <path to natgeo-wallpaper repo>/wallpaper.sh > <path to natgeo-wallpaper repo>/wallpaper.log 2>&1
     ```
-3. Go to the OS Settings -> Background 
+3. Type `gnome-tweak-tools` in the terminal and go to Desktop -> Background 
+    Location and select the file `<path to repository>/pics/wallpaper.jpg` 
+    (create file if not already there).
