@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 import os
 from bs4 import BeautifulSoup
 from urllib.request import urlopen, urlretrieve
@@ -10,7 +8,7 @@ from PIL import ImageFont
 from PIL import ImageDraw
 
 
-class NatGeoImageWallpaper:
+class NatGeoImageWallpaper(object):
 
     def __init__(self, url_natgeo):
         # Path of project
@@ -25,7 +23,7 @@ class NatGeoImageWallpaper:
                                                 '%Y-%m-%d')
         self.soup = None
 
-    def soup(self):
+    def get_set_soup(self):
         """ Get web soup, i.e. xml and stuff.
         """
         f = urlopen(self.url_natgeo)
@@ -37,6 +35,7 @@ class NatGeoImageWallpaper:
             `wallpaper_<today's date>.jpg`.
         """
         url_image = self.soup.find("meta", property="og:image")['content']
+        print(self.pictures_path)
         urlretrieve(url_image,
                     os.path.join(self.pictures_path,
                                  'wallpaper_{}.jpg'.format(self.today)))
@@ -52,45 +51,42 @@ class NatGeoImageWallpaper:
         f = e.find_all('script')[0]
         text = f.get_text().rstrip().lstrip()
         text_json = json.loads(text)
-        text = text_json['dek']['dek']['text'].replace('<p>', '').replace('</p>',
-                                                                          '')
-        text_file = open(os.path.join(self, 'wallpaper.txt'), "w")
+        text = text_json['dek']['dek']['text'].replace('<p>', '').\
+            replace('</p>', '')
+        text_file = open(os.path.join(self.assets_path, 'wallpaper.txt'), "w")
         text_file.write(text)
         text_file.close()
 
+        return "Work in Progress"
 
-def insert_text_on_image(text, date, font=None):
-    # Load font
-    if not font:
-        font = '/usr/share/fonts/gnu-free/FreeSerif.ttf'
-    font = ImageFont.truetype(font, 48)
+    def generate_final_image(self, text_overlay=False):
+        # Load image
+        img = Image.open(os.path.join(self.pictures_path,
+                                      'wallpaper_{}.jpg'.format(self.today)))
+        draw = ImageDraw.Draw(img)
 
-    # Load image
-    img = Image.open(os.path.join(pics_path, 'wallpaper_{}.jpg'.format(date)))
-    draw = ImageDraw.Draw(img)
+        if text_overlay:
+            # Load font
+            fontname = '/usr/share/fonts/gnu-free/FreeSerif.ttf'
+            font = ImageFont.truetype(fontname, 48)
+            # font = ImageFont.truetype(<font-file>, <font-size>)
+            # font = ImageFont.truetype("sans-serif.ttf", 16)
 
-    # font = ImageFont.truetype(<font-file>, <font-size>)
-    #font = ImageFont.truetype("sans-serif.ttf", 16)
-    # draw.text((x, y),"Sample Text",(r,g,b))
+            # Insert text on image
+            text = self.get_image_description()
+            draw.text((0, 0), text, (0, 0, 0))
 
-    # Insert text on image
-    draw.text((0, 0), text, (0, 0, 0))#,font=font)
+        # Generate new image with text
+        img.save(os.path.join(self.pictures_path, 'wallpaper.jpg'))
 
-    # Generate new image with text
-    img.save('wallpaper.jpg')
+    def update(self):
+        self.get_set_soup()
+        self.download_image()
+        self.generate_final_image()
 
-
-if __name__ == "main":
-    # URL to NatGeo's photo of the day
-    url_natgeo = \
-        'https://www.nationalgeographic.com/photography/photo-of-the-day/'
-    # Declare instance
-    ngiw = NatGeoImageWallpaper(url_natgeo=url_natgeo)
-    ngiw.soup()
-
-    soup = get_web_soup(url_nat_geo)
-    download_image(soup)
-    get_image_description(soup)
-    insert_text_on_image("w", today)
-
-#if 'wallpaper_{}.jpg'.format(today) not in os.listdir(pics_path):
+# URL to NatGeo's photo of the day
+url_natgeo = \
+    'https://www.nationalgeographic.com/photography/photo-of-the-day/'
+# Declare instance
+ngiw = NatGeoImageWallpaper(url_natgeo=url_natgeo)
+ngiw.update()
