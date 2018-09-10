@@ -10,7 +10,10 @@ This project has been tested on CentOS 7.5.1804 and GNOME Shell 3.25.4.
 
 To make it work you need to follow this simple steps:
 
-
+0. Install python dependencies: 
+	```
+	$ pip3 install bs4 pillow lxml --user
+	```
 1. Change the paths in the shell script [wallpaper.sh](wallpaper.sh).
 2. Add the shell script to cronetab to ensure that it is executed daily. Type 
     `sudo crontab -e`. This will open a file, insert the following line 
